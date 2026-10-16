@@ -57,7 +57,6 @@ Write-LuZuLog ""
 $cSharpSource = @"
 using System;
 using System.IO;
-using System.Net.Http;
 using System.Threading;
 using System.Globalization;
 using System.Security.Cryptography;
@@ -97,7 +96,7 @@ namespace LuZuEngine
     public static class LuZuRot
     {
         private static readonly byte[] _signingKey = new byte[32];
-        private static volatile int _ROTN_VOLATILE = 0;
+        private static int _ROTN_VOLATILE = 0;
 
         static LuZuRot()
         {

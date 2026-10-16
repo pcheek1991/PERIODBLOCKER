@@ -87,3 +87,19 @@ block requests. The sample list is fixed in the source.
 
 Treat this repository as an educational classification-and-logging sample,
 not as an ad blocker or security control.
+
+## Automated validation
+
+GitHub Actions validates the scripts on ephemeral, GitHub-hosted native
+runners. The Windows Server 2022 job uses Windows PowerShell 5.1 to extract and
+compile the embedded C# and check its ROT13 and sample-splitting logic without
+running `main_win.ps1` or touching the Event Log. This covers Windows Server,
+not Windows 11 itself.
+
+The Ubuntu job syntax-checks `main_ubuntu.sh` and runs its fixed sample,
+checking the classifications with a temporary no-op `logger`. The macOS job
+does the same for `main_macos.sh` using native Zsh. macOS is tested on a native
+runner, not in a container. Neither shell script makes network requests; the
+logger shim prevents system-log writes, and the jobs do not touch hosts, DNS,
+or firewall settings. They run on ephemeral hosted machines, not a developer's
+workstation.

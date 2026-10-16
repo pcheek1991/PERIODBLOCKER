@@ -1,0 +1,35 @@
+name: Cross-platform validation
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-powershell:
+    name: Windows PowerShell 5.1 compile
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile and exercise embedded C# safely
+        shell: powershell
+        run: .\tests\Validate-WindowsCSharp.ps1
+
+  ubuntu:
+    name: Ubuntu shell syntax and sample
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax-check and run sample with logger stub
+        run: bash tests/validate-shell-sample.sh bash main_ubuntu.sh
+
+  macos:
+    name: macOS Zsh syntax and sample
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax-check and run sample with logger stub
+        run: bash tests/validate-shell-sample.sh zsh main_macos.sh
