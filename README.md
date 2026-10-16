@@ -19,10 +19,52 @@ classifier and into local logging.
 | `main_ubuntu.sh` | Ubuntu, Bash, `tr`, and `logger` | Console and `logger` (`LuZuMonolith`) |
 | `main_win.ps1` | Windows PowerShell 5.1 | Console and best-effort Application Event Log |
 | `coreo.sh1` | Windows PowerShell Core 7.6.6 or newer | Console and best-effort Application Event Log |
+| `coreo\optics\ToricLens.ps1` | PowerShell Core 7.6.7 (exact) | Optional TORIC lens profile, self-test, and read-only certificate-store summary |
 
 The shell scripts use a hard-coded four-domain sample. The PowerShell scripts
 split the same sample string with an embedded C# helper. Nothing downloads or
 refreshes a list.
+
+## Optional TORIC lens COREO component
+
+`coreo\optics\ToricLens.ps1` is a separate educational optics calculation; it
+does not participate in domain classification or change any existing script.
+It requires exactly PowerShell 7.6.7 and checks that runtime before loading the
+C# implementation in `coreo\optics\ToricLensPower.cs`.
+
+The model is `P(theta) = Sphere + Cylinder * sin^2(theta - axis)`, with angles
+in degrees and axis normalized to `[0, 180)`. The default axis is 0 degrees.
+Run the sample profile or its formula/axis self-test with:
+
+```powershell
+pwsh.exe -NoProfile -File .\coreo\optics\ToricLens.ps1 -Mode Profile
+pwsh.exe -NoProfile -File .\coreo\optics\ToricLens.ps1 -Mode SelfTest
+```
+
+The sample profile uses Sphere=-2.50 D and Cylinder=-1.25 D:
+
+| Meridian | Effective Power |
+| --- | ---: |
+| 0° | −2.50 D |
+| 30° | −2.81 D |
+| 45° | −3.12 D |
+| 60° | −3.44 D |
+| 90° | −3.75 D |
+| 135° | −3.12 D |
+| 180° | −2.50 D |
+
+Profile display rounds to two decimal places using midpoint-to-even rounding;
+the self-test checks the unrounded numeric values with a tolerance.
+
+`-Mode StoreAudit` is a separate, explicit summary of the selected certificate
+store (default `CurrentUser\My`). It opens the store with
+`X509Store.Open(OpenFlags.ReadOnly)` and reports counts only; it performs no
+certificate imports, additions, removals, or trust changes. Neither the
+self-test nor CI invokes this mode, and no store inspection was run on the
+developer workstation.
+
+This component is an educational optics calculation, not an ad blocker,
+medical advice, DoD-certified code, or a compliance claim.
 
 ## ▶️ Run a sample
 
@@ -101,5 +143,7 @@ checking the classifications with a temporary no-op `logger`. The macOS job
 does the same for `main_macos.sh` using native Zsh. macOS is tested on a native
 runner, not in a container. Neither shell script makes network requests; the
 logger shim prevents system-log writes, and the jobs do not touch hosts, DNS,
-or firewall settings. They run on ephemeral hosted machines, not a developer's
-workstation.
+or firewall settings. An additional Windows job downloads the
+checksum-verified PowerShell 7.6.7 portable release and runs only the focused
+ToricLens tests; it does not invoke the certificate-store mode. These jobs run
+on ephemeral hosted machines, not a developer's workstation.
