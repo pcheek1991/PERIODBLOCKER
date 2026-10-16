@@ -1,2 +1,89 @@
 # PERIODBLOCKER
-A small cross-platform domain-blocklist demonstration
+
+### A small field guide to domain-list classification
+
+Four platform-native scripts trace one fixed sample list through a simple
+classifier and into local logging.
+
+> **They report labels; they do not block network traffic.**
+
+**Learning demo** · **Static inputs** · **No network enforcement**
+
+---
+
+## 🧭 The scripts
+
+| File | Runtime | Output |
+| --- | --- | --- |
+| `main_macos.sh` | macOS, Zsh, and `python3` | Console and `logger` (`LuZuMonolith`) |
+| `main_ubuntu.sh` | Ubuntu, Bash, `tr`, and `logger` | Console and `logger` (`LuZuMonolith`) |
+| `main_win.ps1` | Windows PowerShell 5.1 | Console and best-effort Application Event Log |
+| `coreo.sh1` | Windows PowerShell Core 7.6.6 or newer | Console and best-effort Application Event Log |
+
+The shell scripts use a hard-coded four-domain sample. The PowerShell scripts
+split the same sample string with an embedded C# helper. Nothing downloads or
+refreshes a list.
+
+## ▶️ Run a sample
+
+Run commands from the repository root. Review each script before running it.
+
+**macOS**
+
+```sh
+zsh ./main_macos.sh
+```
+
+Requires `zsh`, `python3`, and the system `logger` command.
+
+**Ubuntu Linux**
+
+```sh
+bash ./main_ubuntu.sh
+```
+
+Requires Bash, `tr`, and the system `logger` command.
+
+**Windows PowerShell 5.1**
+
+```powershell
+powershell.exe -NoProfile -File .\main_win.ps1
+```
+
+**Windows PowerShell Core 7.6.6+**
+
+`coreo.sh1` contains PowerShell code but has a nonstandard file extension.
+Make a `.ps1` copy before using `-File`:
+
+```powershell
+Copy-Item .\coreo.sh1 .\coreo.ps1
+pwsh.exe -NoProfile -File .\coreo.ps1
+```
+
+## 🔎 What the labels mean
+
+The macOS and Ubuntu scripts label `doubleclick.net` and `s0.2mdn.net` as
+`BLOCKED`; the other two sample names are labelled `ALLOWED`. The PowerShell
+scripts' filter set is never populated, so they label every sample name
+`ALLOWED`.
+
+These are text classifications only. The scripts do **not** change DNS,
+firewall rules, browser settings, or the hosts file, and do not intercept or
+block requests. The sample list is fixed in the source.
+
+## ⚠️ Scope and side effects
+
+- ROT13 is a reversible text rotation, not encryption. Despite comments in
+  the source, no script computes an HMAC or digital signature; the random
+  signing-key field in the PowerShell code is never used to sign anything.
+- The source's "zero-allocation" wording is not accurate: these examples
+  create strings, arrays, and lists.
+- macOS and Ubuntu send messages to the system `logger` command. Where those
+  messages appear depends on the operating system's logging configuration.
+- The Windows scripts print to the console and attempt Event Log writes. If
+  run elevated and the source is missing, they may create the persistent
+  `LuZuMonolith` source in the `Application` log. Event Log write failures are
+  ignored; an error while creating the source can stop startup.
+
+Treat this repository as an educational classification-and-logging sample,
+not as an ad blocker or security control.
